@@ -33,7 +33,10 @@ public class AppSecurity {
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(lockingAuthProvider)
-                .formLogin(Customizer.withDefaults())
+                .formLogin(login -> login
+                        .successHandler((req, res, auth) -> res.setStatus(200))
+                        .failureHandler((req, res, ex) -> res.setStatus(401))
+                )
                 .logout(Customizer.withDefaults());
         return http.build();
     }
