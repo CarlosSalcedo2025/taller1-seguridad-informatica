@@ -23,8 +23,11 @@ public class AuthController {
     private final UserRepository repo;
     private final PasswordEncoder encoder;
 
-    public record RegisterReq(@Email String email, @Size(min = 10) String password, boolean admin) {}
-    public record Msg(String message) {}
+    public record RegisterReq(@Email String email, @Size(min = 10) String password, boolean admin) {
+    }
+
+    public record Msg(String message) {
+    }
 
     public AuthController(UserRepository repo, PasswordEncoder encoder) {
         this.repo = repo;
@@ -49,9 +52,13 @@ public class AuthController {
 
     @GetMapping("/me")
     public Map<String, Object> me(Authentication auth) {
+        boolean logged = auth != null;
         return Map.of(
-                "user",  auth == null ? null : auth.getName(),
-                "roles", auth == null ? List.of() : auth.getAuthorities().stream().map(Object::toString).toList()
+                "authenticated", logged,
+                "user", logged ? auth.getName() : "",
+                "roles", logged
+                        ? auth.getAuthorities().stream().map(Object::toString).toList()
+                        : List.of()
         );
     }
 }

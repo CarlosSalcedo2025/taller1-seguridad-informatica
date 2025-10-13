@@ -21,7 +21,7 @@ public class SecurityBeans {
                 .map(u -> org.springframework.security.core.userdetails.User
                         .withUsername(u.getEmail())
                         .password(u.getPasswordHash())
-                        .authorities(u.getRoles().split(","))
+                        .authorities(u.getRoles().trim().split("\\s*,\\s*"))
                         .build())
                 .orElseThrow(() -> new UsernameNotFoundException("No existe el usuario"));
     }
