@@ -31,3 +31,9 @@ logging:
     org.springframework.security: INFO
     org.flywaydb: DEBUG
     com.zaxxer.hikari: DEBUG
+
+app:
+  jwt:
+    secret: "h3s7C2T6wQJg9zqv0o2yYF9b3yK3s8r1bG4yS1p0V8qE5m2Zq6G2xw=="
+    expiration-minutes: 60
+
