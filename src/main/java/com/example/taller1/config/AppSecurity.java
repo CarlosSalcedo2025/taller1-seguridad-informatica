@@ -1,13 +1,14 @@
 package com.example.taller1.config;
 
 
-import com.example.taller1.security.infra.LockingAuthProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+
+import com.example.taller1.security.infraestructure.LockingAuthProvider;
 
 @Configuration
 @EnableMethodSecurity

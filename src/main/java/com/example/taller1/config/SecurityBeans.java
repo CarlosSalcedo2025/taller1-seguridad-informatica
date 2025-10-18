@@ -1,11 +1,12 @@
 package com.example.taller1.config;
 
-import com.example.taller1.user.infra.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import com.example.taller1.repository.UserRepository;
 
 @Configuration
 public class SecurityBeans {

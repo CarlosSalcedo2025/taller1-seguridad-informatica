@@ -1,4 +1,4 @@
-package com.example.taller1.note.domain;
+package com.example.taller1.entity;
 
 import jakarta.persistence.*;
 import java.time.Instant;

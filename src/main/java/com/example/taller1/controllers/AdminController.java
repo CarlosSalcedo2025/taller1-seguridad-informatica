@@ -1,7 +1,9 @@
-package com.example.taller1.admin.web;
+package com.example.taller1.controllers;
 
-import com.example.taller1.user.infra.UserRepository;
 import org.springframework.web.bind.annotation.*;
+
+import com.example.taller1.repository.UserRepository;
+
 import java.util.List;
 import java.util.Map;
 

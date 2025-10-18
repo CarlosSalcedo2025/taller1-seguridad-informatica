@@ -1,8 +1,9 @@
-package com.example.taller1.note.web;
+package com.example.taller1.controllers;
 
 
-import com.example.taller1.note.domain.Note;
-import com.example.taller1.note.infra.NoteRepository;
+import com.example.taller1.entity.Note;
+import com.example.taller1.repository.NoteRepository;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.*;

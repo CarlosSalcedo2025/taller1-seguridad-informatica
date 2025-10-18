@@ -12,11 +12,11 @@ server:
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5433/taller1
-    username: biblioteca_user
-    password: biblioteca_pwd
+    username: postgres
+    password: 123
   jpa:
     hibernate:
-      ddl-auto: validate      # Flyway har� el esquema
+      ddl-auto: validate
     open-in-view: false
     properties:
       hibernate.format_sql: true

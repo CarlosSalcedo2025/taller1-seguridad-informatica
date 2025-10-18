@@ -1,8 +1,9 @@
 package com.example.taller1.config;
 
 
-import com.example.taller1.user.domain.User;
-import com.example.taller1.user.infra.UserRepository;
+import com.example.taller1.entity.User;
+import com.example.taller1.repository.UserRepository;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

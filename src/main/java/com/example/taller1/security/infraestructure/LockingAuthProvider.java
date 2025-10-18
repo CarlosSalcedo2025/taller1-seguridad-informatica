@@ -1,4 +1,4 @@
-package com.example.taller1.security.infra;
+package com.example.taller1.security.infraestructure;
 
 
 import com.example.taller1.security.app.LoginAttemptService;

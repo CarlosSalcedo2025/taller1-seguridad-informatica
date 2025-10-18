@@ -1,8 +1,10 @@
-package com.example.taller1.note.infra;
+package com.example.taller1.repository;
 
 
-import com.example.taller1.note.domain.Note;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.example.taller1.entity.Note;
+
 import java.util.List;
 
 public interface NoteRepository extends JpaRepository<Note, Long> {

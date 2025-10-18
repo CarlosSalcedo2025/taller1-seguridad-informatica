@@ -1,8 +1,9 @@
-package com.example.taller1.auth.web;
+package com.example.taller1.controllers;
 
 
-import com.example.taller1.user.domain.User;
-import com.example.taller1.user.infra.UserRepository;
+import com.example.taller1.entity.User;
+import com.example.taller1.repository.UserRepository;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;

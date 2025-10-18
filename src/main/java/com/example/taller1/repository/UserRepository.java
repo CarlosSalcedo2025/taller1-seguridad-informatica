@@ -1,8 +1,10 @@
-package com.example.taller1.user.infra;
+package com.example.taller1.repository;
 
 
-import com.example.taller1.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.example.taller1.entity.User;
+
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
