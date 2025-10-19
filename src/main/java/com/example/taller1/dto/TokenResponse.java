@@ -6,7 +6,10 @@ public record TokenResponse(
     String accessToken,
 
     @JsonProperty("refresh_token")
-    String refreshToken
+    String refreshToken,
+
+    @JsonProperty("message")
+    String message
 ) {
     
 }

@@ -1,6 +1,7 @@
 package com.example.taller1.services;
 
 import com.example.taller1.dto.LoginRequest;
+import com.example.taller1.dto.RegisterRequest;
 import com.example.taller1.dto.TokenResponse;
 import com.example.taller1.entity.User;
 import com.example.taller1.entity.Token;
@@ -8,7 +9,6 @@ import com.example.taller1.repository.TokenRepository;
 import com.example.taller1.repository.UserRepository;
 
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -47,20 +47,27 @@ public class AuthService {
     }
 
     // método de registro de usuario
-    public ResponseEntity<?> register(RegisterReq in) {
+    public TokenResponse register(final RegisterRequest request) {
         // If a user with the same email already exists, return 409 Conflict
-        if (repo.findByEmail(in.email()).isPresent())
-            return ResponseEntity.status(409).body(new Msg("Ya existe"));
+        if (repo.findByEmail(request.email()).isPresent())
+            return new TokenResponse(null, null, "Ya existe un usuario con ese correo electrónico");
 
-        if (!in.password().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{10,}$"))
-            return ResponseEntity.badRequest().body(new Msg("Password débil"));
+        if (!request.password().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{10,}$"))
+            return new TokenResponse(null, null, "La contraseña debe tener al menos 10 caracteres, incluyendo una letra mayúscula y un número");
 
         var u = new User();
-        u.setEmail(in.email());
-        u.setPasswordHash(encoder.encode(in.password()));
-        u.setRoles(in.admin() ? "ROLE_USER,ROLE_ADMIN" : "ROLE_USER");
+        u.setEmail(request.email());
+        u.setPasswordHash(encoder.encode(request.password()));
+        u.setRoles(request.admin() ? "ROLE_USER,ROLE_ADMIN" : "ROLE_USER");
         repo.save(u);
-        return ResponseEntity.status(201).body(new Msg("OK"));
+
+        final User savedUser = repo.save(u);
+        final String jwtToken = jwtService.generateToken(savedUser);
+        final String refreshToken = jwtService.generateRefreshToken(savedUser);
+
+        saveUserToken(savedUser, jwtToken);
+
+        return new TokenResponse(jwtToken, refreshToken, "Usuario registrado correctamente");
     }
 
     // método de login que genera y retorna tokens JWT
@@ -80,7 +87,7 @@ public class AuthService {
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);
 
-        return new TokenResponse(jwtToken, refreshToken);
+        return new TokenResponse(jwtToken, refreshToken, "Login exitoso");
     }
 
     // guardamos el token en la base de datos
@@ -130,7 +137,7 @@ public class AuthService {
         revokeAllUserTokens(user);
         saveUserToken(user, accessToken);
         
-        return new TokenResponse(accessToken, refreshToken);
+        return new TokenResponse(accessToken, refreshToken, "Token refrescado correctamente");
     }
 
     // método para obtener información del usuario autenticado

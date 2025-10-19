@@ -3,19 +3,22 @@ package com.example.taller1.controllers;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.taller1.dto.LoginRequest;
+import com.example.taller1.dto.RegisterRequest;
 import com.example.taller1.dto.TokenResponse;
 
 import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
-@Validated
+@RequiredArgsConstructor
 public class AuthController {
 
     private final com.example.taller1.services.AuthService authService;
@@ -26,27 +29,10 @@ public class AuthController {
     public record Msg(String message) {
     }
 
-    public AuthController(com.example.taller1.services.AuthService authService) {
-        this.authService = authService;
-    }
-
     @PostMapping("/register")
-    /**
-     * Registra un nuevo usuario.
-     * <p>
-     * Valida el request usando las anotaciones de `RegisterReq` y delega la creación y
-     * validación adicional al servicio `AuthService`.
-     *
-     * Respuestas posibles:
-     * - 201 Created: usuario creado correctamente (body: {"message":"OK"})
-     * - 400 Bad Request: password no cumple la política (body: {"message":"Password débil"})
-     * - 409 Conflict: el email ya existe (body: {"message":"Ya existe"})
-     *
-     * @param in datos de registro (email, password, admin)
-     * @return ResponseEntity con código y mensaje correspondiente
-     */
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterReq in) {
-        return authService.register(new com.example.taller1.services.AuthService.RegisterReq(in.email(), in.password(), in.admin()));
+    public ResponseEntity<TokenResponse> register(@RequestBody RegisterRequest request) {
+        final TokenResponse response = authService.register(request);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/me")
@@ -63,7 +49,7 @@ public class AuthController {
         return authService.me(auth);
     }
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     // Endpoint de login.
     public ResponseEntity<TokenResponse> login(@RequestBody final LoginRequest request) {
         final TokenResponse token = authService.login(request);
