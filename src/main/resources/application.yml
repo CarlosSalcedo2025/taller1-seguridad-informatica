@@ -7,7 +7,7 @@ server:
         name: DEMOSESSION
         http-only: true
         same-site: Strict
-        secure: false   # true si usas HTTPS
+        secure: false # true si usas HTTPS
 
 spring:
   datasource:
@@ -16,7 +16,7 @@ spring:
     password: 123
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     open-in-view: false
     properties:
       hibernate.format_sql: true
@@ -31,3 +31,13 @@ logging:
     org.springframework.security: INFO
     org.flywaydb: DEBUG
     com.zaxxer.hikari: DEBUG
+
+application:
+  security:
+    jwt:
+      # Cargar el secreto JWT desde la variable de entorno JWT_SECRET para evitar comprometer secretos en el repo.
+      # Establece JWT_SECRET en tu entorno o usa un archivo local `.env` (que debe estar en .gitignore).
+      secret-key: "bWlDbGF2ZVN1cGVyU2VndXJhMTIzNDU2Nzg5MA==" # valor por defecto (base64) para desarrollo
+      expiration-minutes: 60 # 1 hora
+      refresh-token:
+        expiration-minutes: 1440 # 24 horas

@@ -1,19 +1,16 @@
 package com.example.taller1.controllers;
 
-
-import com.example.taller1.entity.User;
-import com.example.taller1.repository.UserRepository;
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import com.example.taller1.dto.LoginRequest;
+import com.example.taller1.dto.TokenResponse;
+
 import java.util.Map;
 
 @RestController
@@ -21,8 +18,7 @@ import java.util.Map;
 @Validated
 public class AuthController {
 
-    private final UserRepository repo;
-    private final PasswordEncoder encoder;
+    private final com.example.taller1.services.AuthService authService;
 
     public record RegisterReq(@Email String email, @Size(min = 10) String password, boolean admin) {
     }
@@ -30,37 +26,48 @@ public class AuthController {
     public record Msg(String message) {
     }
 
-    public AuthController(UserRepository repo, PasswordEncoder encoder) {
-        this.repo = repo;
-        this.encoder = encoder;
+    public AuthController(com.example.taller1.services.AuthService authService) {
+        this.authService = authService;
     }
 
     @PostMapping("/register")
+    /**
+     * Registra un nuevo usuario.
+     * <p>
+     * Valida el request usando las anotaciones de `RegisterReq` y delega la creación y
+     * validación adicional al servicio `AuthService`.
+     *
+     * Respuestas posibles:
+     * - 201 Created: usuario creado correctamente (body: {"message":"OK"})
+     * - 400 Bad Request: password no cumple la política (body: {"message":"Password débil"})
+     * - 409 Conflict: el email ya existe (body: {"message":"Ya existe"})
+     *
+     * @param in datos de registro (email, password, admin)
+     * @return ResponseEntity con código y mensaje correspondiente
+     */
     public ResponseEntity<?> register(@Valid @RequestBody RegisterReq in) {
-        if (repo.findByEmail(in.email()).isPresent())
-            return ResponseEntity.status(409).body(new Msg("Ya existe"));
-
-        if (!in.password().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{10,}$"))
-            return ResponseEntity.badRequest().body(new Msg("Password débil"));
-
-        var u = new User();
-        u.setEmail(in.email());
-        u.setPasswordHash(encoder.encode(in.password()));
-        u.setRoles(in.admin() ? "ROLE_USER,ROLE_ADMIN" : "ROLE_USER");
-        repo.save(u);
-        return ResponseEntity.status(201).body(new Msg("OK"));
+        return authService.register(new com.example.taller1.services.AuthService.RegisterReq(in.email(), in.password(), in.admin()));
     }
 
     @GetMapping("/me")
+    /**
+     * Devuelve información del usuario autenticado.
+     *
+     * El endpoint devuelve un objeto con las claves: `authenticated`, `user` y `roles`.
+     * Si no hay autenticación, `authenticated` es false y `user` es cadena vacía.
+     *
+     * @param auth objeto de Spring Security (puede ser null)
+     * @return mapa con estado de autenticación y roles
+     */
     public Map<String, Object> me(Authentication auth) {
-        boolean logged = auth != null;
-        return Map.of(
-                "authenticated", logged,
-                "user", logged ? auth.getName() : "",
-                "roles", logged
-                        ? auth.getAuthorities().stream().map(Object::toString).toList()
-                        : List.of()
-        );
+        return authService.me(auth);
+    }
+
+    @GetMapping("/login")
+    // Endpoint de login.
+    public ResponseEntity<TokenResponse> login(@RequestBody final LoginRequest request) {
+        final TokenResponse token = authService.login(request);
+        return ResponseEntity.ok(token);
     }
 }
 

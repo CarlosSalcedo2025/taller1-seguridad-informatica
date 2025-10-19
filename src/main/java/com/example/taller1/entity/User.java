@@ -1,5 +1,7 @@
 package com.example.taller1.entity;
 
+import java.util.List;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -17,6 +19,11 @@ public class User {
 
     @Column(nullable = false)
     private String roles = "ROLE_USER";
+
+
+    // Relación uno a muchos con la entidad Token
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Token> tokens;
 
     // --- getters/setters ---
     public Long getId() { return id; }

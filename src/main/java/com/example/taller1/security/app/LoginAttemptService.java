@@ -15,7 +15,9 @@ public class LoginAttemptService {
         var a = map.getOrDefault(user, new Attempts(0, Instant.EPOCH));
         return Instant.now().isBefore(a.until());
     }
+    
     public void onSuccess(String user) { map.remove(user); }
+    
     public void onFailure(String user) {
         var a = map.getOrDefault(user, new Attempts(0, Instant.EPOCH));
         int next = a.count() + 1;
