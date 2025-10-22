@@ -1,65 +1,58 @@
-package com.example.taller1.auth.web;
-
-
-import com.example.taller1.user.domain.User;
-import com.example.taller1.user.infra.UserRepository;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Size;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
+import com.example.taller1.auth.security.JwtUtil;
+import org.springframework.http.ResponseCookie;
 
 @RestController
 @RequestMapping("/auth")
 @Validated
 public class AuthController {
-
     private final UserRepository repo;
     private final PasswordEncoder encoder;
+    private final JwtUtil jwtUtil; // ✅ nuevo
 
-    public record RegisterReq(@Email String email, @Size(min = 10) String password, boolean admin) {
-    }
-
-    public record Msg(String message) {
-    }
-
-    public AuthController(UserRepository repo, PasswordEncoder encoder) {
+    public AuthController(UserRepository repo, PasswordEncoder encoder, JwtUtil jwtUtil) {
         this.repo = repo;
         this.encoder = encoder;
+        this.jwtUtil = jwtUtil;
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterReq in) {
-        if (repo.findByEmail(in.email()).isPresent())
-            return ResponseEntity.status(409).body(new Msg("Ya existe"));
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
+        var userOpt = repo.findByEmail(body.get("email"));
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(401).body(new Msg("Usuario no encontrado"));
+        }
 
-        if (!in.password().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{10,}$"))
-            return ResponseEntity.badRequest().body(new Msg("Password débil"));
+        var user = userOpt.get();
+        if (!encoder.matches(body.get("password"), user.getPasswordHash())) {
+            return ResponseEntity.status(401).body(new Msg("Contraseña incorrecta"));
+        }
 
-        var u = new User();
-        u.setEmail(in.email());
-        u.setPasswordHash(encoder.encode(in.password()));
-        u.setRoles(in.admin() ? "ROLE_USER,ROLE_ADMIN" : "ROLE_USER");
-        repo.save(u);
-        return ResponseEntity.status(201).body(new Msg("OK"));
+        var claims = Map.of("roles", user.getRoles());
+        String token = jwtUtil.generateToken(user.getEmail(), claims);
+
+        ResponseCookie cookie = ResponseCookie.from("JWT", token)
+                .httpOnly(true)
+                .path("/")
+                .maxAge(3600)
+                .sameSite("Lax")
+                .build();
+
+        return ResponseEntity.ok()
+                .header("Set-Cookie", cookie.toString())
+                .body(new Msg("Login exitoso"));
     }
 
-    @GetMapping("/me")
-    public Map<String, Object> me(Authentication auth) {
-        boolean logged = auth != null;
-        return Map.of(
-                "authenticated", logged,
-                "user", logged ? auth.getName() : "",
-                "roles", logged
-                        ? auth.getAuthorities().stream().map(Object::toString).toList()
-                        : List.of()
-        );
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        ResponseCookie cookie = ResponseCookie.from("JWT", "")
+                .httpOnly(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Lax")
+                .build();
+
+        return ResponseEntity.ok()
+                .header("Set-Cookie", cookie.toString())
+                .body(new Msg("Logout exitoso"));
     }
 }
-
