@@ -16,7 +16,7 @@ spring:
     password: biblioteca_pwd
   jpa:
     hibernate:
-      ddl-auto: validate      # Flyway har� el esquema
+      ddl-auto: validate      # Flyway hará el esquema
     open-in-view: false
     properties:
       hibernate.format_sql: true
@@ -31,3 +31,9 @@ logging:
     org.springframework.security: INFO
     org.flywaydb: DEBUG
     com.zaxxer.hikari: DEBUG
+    
+# CONFIGURACIÓN JWT
+
+jwt:
+  secret: "MiSecretoMuyLargoYSeguro_@2025"  
+  expiration-ms: 3600000                     

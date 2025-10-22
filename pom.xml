@@ -24,10 +24,12 @@
         <maven.resources.plugin.version>3.3.1</maven.resources.plugin.version>
         <lombok.version>1.18.40</lombok.version>
         <flyway.postgres.version>11.7.2</flyway.postgres.version>
+        <!-- versión centralizada para jjwt -->
+        <jjwt.version>0.11.5</jjwt.version>
     </properties>
 
     <dependencies>
-        <!-- Spring -->
+        <!-- === SPRING BOOT CORE === -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -45,7 +47,7 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
-        <!-- DB & Flyway -->
+        <!-- === BASE DE DATOS === -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -61,7 +63,7 @@
             <version>${flyway.postgres.version}</version>
         </dependency>
 
-        <!-- Lombok -->
+        <!-- === LOMBOK === -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -70,7 +72,26 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Tests -->
+        <!-- === JWT (JJWT) === -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${jjwt.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId> <!-- Para usar Jackson en parsing -->
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- === TESTS === -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -84,7 +105,6 @@
     </dependencies>
 
     <build>
-        <!-- No filtrar resources: deja application.yml tal cual -->
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -93,7 +113,6 @@
         </resources>
 
         <plugins>
-            <!-- Encoding + extensiones no filtradas (en el PLUGIN, aquí sí es válido) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -108,7 +127,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Java 21 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -124,7 +142,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Spring Boot -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -140,3 +157,4 @@
         </plugins>
     </build>
 </project>
+
