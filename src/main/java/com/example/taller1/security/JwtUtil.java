@@ -1,4 +1,4 @@
-package mi.paquete.security;
+package com.example.taller1.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
