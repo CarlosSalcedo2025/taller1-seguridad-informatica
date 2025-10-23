@@ -1,21 +1,33 @@
-import com.example.taller1.auth.security.JwtUtil;
+package com.example.taller1.auth.web;
+
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.taller1.note.domain.Msg;
+import com.example.taller1.security.app.JwtService;
+import com.example.taller1.user.infra.UserRepository;
 
 @RestController
 @RequestMapping("/auth")
 @Validated
 public class AuthController {
-    private final UserRepository repo;
-    private final PasswordEncoder encoder;
-    private final JwtUtil jwtUtil; // ✅ nuevo
+	@Autowired 
+	UserRepository repo;
+	@Autowired
+	PasswordEncoder encoder;
+	@Autowired
+	JwtService jwtService; 
 
-    public AuthController(UserRepository repo, PasswordEncoder encoder, JwtUtil jwtUtil) {
-        this.repo = repo;
-        this.encoder = encoder;
-        this.jwtUtil = jwtUtil;
-    }
-
-    @PostMapping("/login")
+	@PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
         var userOpt = repo.findByEmail(body.get("email"));
         if (userOpt.isEmpty()) {
@@ -26,9 +38,8 @@ public class AuthController {
         if (!encoder.matches(body.get("password"), user.getPasswordHash())) {
             return ResponseEntity.status(401).body(new Msg("Contraseña incorrecta"));
         }
-
-        var claims = Map.of("roles", user.getRoles());
-        String token = jwtUtil.generateToken(user.getEmail(), claims);
+        
+        String token = jwtService.generarToken(user.getEmail());
 
         ResponseCookie cookie = ResponseCookie.from("JWT", token)
                 .httpOnly(true)
